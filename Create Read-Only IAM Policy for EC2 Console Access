@@ -1,1 +1,7 @@
+Create Read-Only IAM Policy for EC2 Console Access 
+
+Create an IAM policy named iampolicy_rose . it must allow read-only access to the EC2 console,
+i.e this policy must allow users to view all instances, AMIs, and snapshots in the Amazon EC2 console.
+
+
 
