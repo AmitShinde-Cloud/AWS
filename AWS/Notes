@@ -1,1 +1,374 @@
+# ☁️ AWS Notes
 
+---
+
+## 🖥️ EC2 — Elastic Cloud Compute
+
+An AWS EC2 instance is a virtual server in the cloud that you can rent from Amazon Web Services (AWS) to run your applications and workloads.
+
+| 🔑 Term | 📖 Meaning |
+|--------|-----------|
+| ⚡ **Elastic** | Multiple service providers and its prefix. Whenever AWS provide service that scaled up and scaled down that means this service elastic in nature. |
+| 🌐 **Cloud** | Public platform |
+| 💻 **Compute** | CPU, RAM, Disk, virtual server |
+
+---
+
+### ✅ What is the advantage of EC2 instance?
+
+- 🔒 Deliver secure, reliable, high-performance, and cost-effective compute infrastructure to meet demanding business needs.
+- ⚙️ Access the on-demand infrastructure and capacity you need to run HPC applications faster and cost-effectively.
+- ⏱️ Access environments in minutes, dynamically scale capacity as needed, and benefit from AWS's pay-as-you-go pricing.
+- 🤖 Deliver the broadest choice of compute, networking (up to 400 Gbps), and storage services purpose-built to optimize price performance for ML projects.
+
+---
+
+### 📦 What are the different types of EC2 instance?
+
+Depending on application we can choose instance type.
+
+- 🔧 General purpose
+- ⚡ Compute optimized
+- 🧠 Memory optimized
+- 💾 Storage optimized
+- 🚀 Accelerated computing
+
+---
+
+### 🔐 EC2 Access
+
+- 🗝️ To access instance, you need a key and keypair Name
+- ⬇️ You can download the private key only once
+- 🔄 The public key is saved by AWS to match it to the keypair name, and private key when you try to log in to the EC2 instance.
+- 🚫 Without keypair you cannot access instance via RDP or SSH (Linux)
+- 📊 There is 20 EC2 instance soft limit per region, you can submit request to AWS to increase limit
+
+---
+
+### 🩺 EC2 Status Check
+
+- ⏱️ By default, AWS EC2 service performs automatically status check every one minute.
+- 🔍 This is done on every running EC2 instance to identify any H/W or software issue
+- 🔧 Status check is built into the AWS EC2 instance.
+- 🚫 They cannot be configured, deleted or disabled.
+- 📈 EC2 Service can send its metric Data to AWS CloudWatch every 5 min
+
+---
+
+## 🚀 Create EC2 Instance and Deploy Jenkins on AWS
+
+- 🔎 Search EC2 instance and click
+- 🖱️ Click on instance running
+- ➡️ Then your right side you can see launch instance menu, click on same.
+- 📝 Please choose name of your instance.
+- 🐧 Choose OS of your instance. Here I can choose Ubuntu OS. Again, AWS says which version do you want. Make sure you can choose free tier eligible resources. Whenever you can choose free tier, AWS provide 750 hrs t2 micro. If you can choose any other than t2 micro then AWS will charge you.
+<img src="aws-console.png" alt="AWS Console">
+> 🎁 **Free tier:** In your first year includes 750 hours of t2.micro (or t3.micro in the Regions in which t2.micro is unavailable) instance usage on free tier AMIs per month, 750 hours of public IPv4 address usage per month, 30 GiB of EBS storage, 2 million IOs, 1 GB of snapshots, and 100 GB of bandwidth to the internet.
+
+- 🔑 Key pair is required, it nothing but combination of public key and private key.
+- ➕ Create new keypair, provide name and select RSA.
+- 🌐 Keep network setting as it is, we will not touch for this lab.
+- 🖱️ Then you need to click on launch instance and below screen will appear.
+- ✅ Once instance created then access instance through Putty.
+- 🔄 You must update the packages on OS.
+
+> 🐧 If you are ubuntu user then use this command:
+> ```bash
+> sudo apt update
+> ```
+
+> 👑 If you are root user then use this command:
+> ```bash
+> apt update
+> ```
+
+- ☕ Then we need to deploy Jenkins on ubuntu. For that there is prerequisite to install JDK.
+
+```bash
+sudo apt install openjdk-17-jre-headless
+```
+
+> 💡 This command will prompt you to confirm the installation by typing 'y' (yes) and then press Enter. It will download and install the OpenJDK 17 JRE along with any necessary dependencies.
+
+- ✅ Once the installation is complete, you can verify that Java has been installed correctly by checking the version:
+
+```bash
+java -version
+```
+
+- 🔗 Then Finally we will go ahead and install Jenkins using Jenkins official URL:
+  👉 https://www.jenkins.io/doc/book/installing/linux/
+
+- 📦 Select weekly release plugin, if you want to download then use below code for same:
+
+```bash
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+https://pkg.jenkins.io/debian/jenkins.io-2023.key
+
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+https://pkg.jenkins.io/debian binary/ | sudo tee \
+/etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install Jenkins
+```
+
+- ⚙️ Once we paste above command in putty then Jenkins will start installing on our ubuntu instance.
+
+- 🔍 Once Jenkins installed then verify whether Jenkins service running or not:
+
+```bash
+systemctl status Jenkins
+```
+
+> 📋 This command will display the status of the Jenkins service, including whether it is running, stopped, or encountering any issues.
+
+**🔎 Interpreting the Output:**
+
+| 🏷️ Field | 📖 Description |
+|---------|--------------|
+| ✅ **Active** | Indicates whether the service is currently running `active (running)`, stopped `inactive (dead)`, or encountering an issue `failed` |
+| 🔢 **Main PID** | Shows the process ID of the main Jenkins process |
+| 📁 **Loaded** | Indicates whether the service unit file is loaded and whether it is enabled to start on boot |
+
+- 🌐 Once everything is done then we will have to access public IP using **http port number 8080** to verify whether Jenkins is installed or not and we can get Jenkins page on browsers.
+
+---
+
+### ⚠️ Permission Denied Error — Troubleshooting
+
+> ❌ Error: `cat: /var/lib/jenkins/secrets/initialAdminPassword: Permission denied`
+
+The error message indicates that the user attempting to read the initialAdminPassword file does not have the necessary permissions to do so.
+
+**🔧 Here's how you can troubleshoot and resolve this issue:**
+
+**1️⃣ Check Permissions** — First, verify the permissions of the file initialAdminPassword using the `ls -l` command:
+
+```bash
+ls -l /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+**2️⃣ Verify User Permissions** — Ensure that the user running the cat command has read permissions on the file. Typically, Jenkins creates this file with restricted permissions for security reasons.
+
+**3️⃣ Use `sudo`** — If you have administrative privileges, you can use sudo to run the cat command with elevated permissions:
+
+```bash
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+- 🔓 Then retrieve password and paste in the Jenkins unlock screen.
+
+> 🎉 **Congratulations!** We have successfully deployed our first application on ubuntu instance.
+
+---
+
+## 🌐 Virtual Private Cloud (VPC)
+
+**Amazon Virtual Private Cloud** is a service that allows its users to launch their instance in a protected as well as isolated virtual environment defined by them. You have complete control over your VPC, from creation to customization and even deletion.
+
+Amazon VPC can be referred to as the private cloud inside the cloud. The servers that you are going to deploy in the Virtual Private Cloud (VPC) will be completely isolated from the other servers that are deployed in the Amazon Web Services. You can have complete control of the IP address to the virtual machines and route tables and gateways to the VPC. With the help of security groups and network access control lists, you can protect your application more.
+
+- 🔒 It is logically isolated from other virtual networks in the AWS cloud
+- 🔢 Maximum **5 VPC** can be created and **200 subnets** in 1 VPC
+- 🌐 We can allocate max **5 elastic IP**
+- ⚡ Once we created VPC, **DHCP, NACL & Security group will be automatically created**
+
+> 📍 **VPC created only region not in AV Zone**
+
+---
+
+### 🧩 VPC Components
+
+#### 🔷 Virtual Private Cloud (VPC)
+A VPC is a virtual network that closely resembles a traditional network that you'd operate in your own data centre. After you create a VPC, you can add subnets.
+
+#### 🔶 Subnets
+- 📐 A subnet is a smaller portion of the network that typically includes all the machines in a certain area.
+- ➕ We can add as many subnets as we need in one availability zone. Each subnet must reside entirely within one availability zone.
+- 🌐 The public subnets will be attached to Internet Gateway which enables Internet access.
+- 🔒 The private subnets will not have internet access.
+- 🗺️ Each subnet which is presented in VPC must be associated with the routing table.
+
+#### 🟢 Public Subnet
+If a subnet traffic is routed to an internet gateway, the subnet is known as a **public subnet**. If you want your instance in a public subnet to communicate with the internet over IPv4, it must have a public IPv4 address or an elastic IP address.
+
+#### 🔴 Private Subnet
+If a subnet does not have a route to the internet gateway, the subnet is known as **private subnet**.
+
+#### 🔢 IP Addressing
+You can assign IP addresses, both IPv4 and IPv6, to your VPCs and subnets. You can also bring your public IPv4 and IPv6 GUA addresses to AWS and allocate them to resources in your VPC, such as EC2 instances, NAT gateways, and Network Load Balancers.
+
+#### 🛡️ Network Access Control List (NACL)
+A Network Access Control List is a **stateless firewall** that controls inbound and outbound traffic at the subnet level. It operates at the IP address level and can allow or deny traffic based on rules that you define. NACLs provide an additional layer of network security for your VPC.
+
+#### 🔐 Security Group
+A security group acts as a **virtual firewall** for instances (EC2 instances or other resources) within a VPC. It controls inbound and outbound traffic at the instance level. Security groups allow you to define rules that permit or restrict traffic based on protocols, ports, and IP addresses.
+
+#### 🗺️ Routing
+Use route tables to determine where network traffic from your subnet or gateway is directed.
+
+#### 🔗 Gateways and Endpoints
+A gateway connects your VPC to another network. For example, use an internet gateway to connect your VPC to the internet. Use a VPC endpoint to connect to AWS services privately, without the use of an internet gateway or NAT device.
+
+#### 🔄 Peering Connections
+Use a VPC peering connection to route traffic between the resources in two VPCs.
+
+#### 🪞 Traffic Mirroring
+Copy network traffic from network interfaces and send it to security and monitoring appliances for deep packet inspection.
+
+#### 🚉 Transit Gateways
+Use a transit gateway, which acts as a central hub, to route traffic between your VPCs, VPN connections, and AWS Direct Connect connections.
+
+#### 📋 VPC Flow Logs
+A flow log captures information about the IP traffic going to and from network interfaces in your VPC.
+
+#### 🔒 VPN Connections
+Connect your VPCs to your on-premises networks using AWS Virtual Private Network (AWS VPN).
+
+#### 📌 RFC1918 Address (Private Address)
+An enterprise organization will give an internal host an IP address known as an RFC1918 address. These IP addresses are employed in private networks that cannot be accessed or accessed through the internet.
+
+**The following networks are included in the RFC1918 address:**
+
+| 🌐 Range | 📋 Prefix |
+|---------|---------|
+| `10.0.0.0` — `10.255.255.255` | 10/8 prefix |
+| `172.16.0.0` — `172.31.255.255` | 172.16/12 prefix |
+| `192.168.0.0` — `192.168.255.255` | 192.168/16 prefix |
+
+---
+
+### 🎯 Use Cases of Amazon VPC
+
+- 🌍 Using VPC, you can host a public-facing website, a single-tier basic web application, or just a plain old website.
+- 🔗 The connectivity between our web servers, application servers, and database can be limited by VPC with the help of **VPC peering**.
+- 🛡️ By managing the inbound and outbound connections, we can restrict the incoming and outcoming security of our application.
+
+---
+
+## 📅 Day 5 — Security Group and NACL
+
+### 🔐 What is a Security Group?
+
+Imagine you're hosting a party at your home. To ensure only invited guests enter, you assign a group of trusted friends (your security group) to act as bouncers at the entrance. Their job is to check the guest list and allow only the invited people in while keeping gatecrashers out.
+
+In AWS, a security group is like this group of bouncers. It's a set of rules that controls inbound and outbound traffic to and from your EC2 instances.
+
+- 📥 **Inbound Rules:** These rules dictate who can enter your party (or access your EC2 instance). For instance, you might allow web traffic on port 80 or secure connections on port 443. In real life, these are like specifying that only guests with valid invitations can come inside your party.
+
+- 📤 **Outbound Rules:** These rules determine where your guests (or your EC2 instance) can go. For example, you might allow your guests to leave and return but not take strangers with them. In AWS, this is akin to allowing your EC2 instance to connect to specific services or websites but not just anywhere on the internet.
+
+#### 🎯 What is the Source?
+In your security group rules, the **source** refers to the origin of the traffic. It can be an IP address, a range of IP addresses, or another security group. It helps you specify who is allowed to send traffic to your EC2 instance or receive traffic from it.
+
+---
+
+### 🛡️ NACLs (Network Access Control Lists)
+
+- 🔁 NACLs are an additional layer of security that operates at the **subnet level**. They act as stateless traffic filters for inbound and outbound traffic at the subnet boundary.
+- 🔗 Unlike Security Groups, NACLs are associated with **subnets**, and each subnet can have only one NACL. However, multiple subnets can share the same NACL.
+- 🔢 NACLs consist of a numbered list of rules (numbered in ascending order) that are evaluated in order from **lowest to highest**.
+- 📋 Each rule in the NACL includes a rule number, protocol, rule action (allow or deny), source or destination IP address range, port range, and ICMP (Internet Control Message Protocol) type.
+- ✅ NACL rules can be configured to allow or deny specific types of traffic based on the defined criteria.
+- ⚠️ They are **stateless**, which means that if an inbound rule allows traffic, the corresponding outbound traffic must be explicitly allowed using a separate outbound rule.
+- ⏳ Changes made to NACL rules may take some time to propagate to all the resources using the associated subnet.
+
+> 🏢 **To define organization network traffic.**
+
+---
+
+## 📅 Day 6 — Route 53
+
+### 🌍 Route 53
+
+You can use Amazon Route 53 to register new domain, transfer existing domains, route traffic for your domain to your AWS and external resources, & monitor health of your resources.
+
+### ⚙️ Route 53 Functions
+
+| # | 🔧 Function |
+|---|-----------|
+| 1️⃣ | DNS management |
+| 2️⃣ | Traffic management |
+| 3️⃣ | Availability monitoring |
+| 4️⃣ | Domain registration |
+
+### 🔄 How Route 53 Works
+
+- 🌐 If a web application requires a domain name, Route53 service helps to register the name for the website (i.e domain name).
+- 👤 Whenever a user enters the domain name, Route53 helps to connect the user to the website.
+- 🚨 If any failure is detected at any level, it automatically routes the user to a healthy resource.
+- 💰 Amazon Route 53 is **cost effective**, secure and scalable.
+- 🔄 Amazon Route 53 is **flexible**, highly available and reliable.
+
+---
+
+## 📅 Day 7 — AWS Project
+
+### 🏗️ VPC with Public-Private Subnet in Production
+
+🔗 Reference: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-example-private-subnets-nat.html
+
+#### 📖 About the Project
+
+In this example, it is demonstrated how to create a virtual private cloud (VPC) that can be utilized for servers in a production environment.
+
+To improve resiliency, you deploy the servers in two Availability Zones, by using an Auto Scaling group and an Application Load Balancer. For additional security, you deploy the servers in private subnets. The servers receive requests through the load balancer. The servers can connect to the internet by using a NAT gateway. To improve resiliency, you deploy the NAT gateway in both Availability Zones.
+
+#### 🗺️ Overview
+
+- 🏢 The VPC has public subnets and private subnets in **two Availability Zones**.
+
+> ❓ **Why we require two Availability Zones?** Some reason if the datacentre of AWS in a specific region or the Availability Zones in specific regions goes down, you will still have other Availability Zones that is the serving traffic for you. So that is the only reason we create two Availability Zones.
+
+- 🔀 Each public subnet contains a **NAT gateway** and a **load balancer node**.
+
+> ❓ **Why we require NAT Gateway?** Let's say above application here, they want to access something on internet. IP address of the instance 172.16.1.0 or 172.16.3.4 when the application or ec2 instance tries to access something from the internet what this NAT Gateway says is okay let me change your IP address to the public IP address of mine and send the request so that your information will be hidden even if the third party application is a false application or even if it is hacked there will not be any problem because that person does not know the IP address of the instance or server.
+
+- ⚡ The servers run in the private subnets, are launched and terminated by using an **Auto Scaling group** and receive traffic from the load balancer.
+
+> 🔒 **Private subnet** — you will launch these applications using an auto scaling group
+
+- 🌐 The servers can connect to the internet by using the **NAT gateway**.
+
+- 📈 **Auto Scaling Group** — Let's assume that you want to deploy applications into availability zones instead of creating your ec2 instance two times, what you can do is you can just tell the auto scaling group that, create minimum of two replicas & in case my application receives more request and if two servers are not enough to accept the incoming traffic, then auto scaling group immediately take decision and scale your server to foreign number file in number six a number.
+
+- ⚖️ **Load Balancer** — it is something that balances the load. So, let's assume that there are 100 requests, now we have two servers hosting the same application, so load balancer takes the responsibility of sending 50 requests to one server and 50 requests to another server. So load balancer exactly balance the load. Apart from that using load balancer you can do **path-based routing**, **host-based routing**.
+
+---
+
+### 🛠️ Project Implementation Steps
+
+**Step 1️⃣ — Create a VPC**
+
+- 🔎 Go to AWS console and search **VPC** and click on **Create VPC**.
+- 🗂️ Then we have two options — **VPC only** and **VPC and more** — select 2nd option which is required for our project. In the preview window, AWS will show diagram for our project.
+- ✅ Then click on **Create VPC**.
+
+**Step 2️⃣ — Create Auto Scaling Group**
+
+- 🖱️ Now we need to create ec2 instance and auto scaling group. So, let's create first auto scaling group.
+- ⚙️ Click on ec2 instance and you can see auto scaling option under ec2. So, click on **Auto Scaling Groups**.
+
+> ⚠️ Auto scaling groups in AWS cannot be created directly, you can use **launch template** — so why you need launch template because you can use this launch template across multiple Auto scaling groups or this template acts as a reference like in future we want to understand how your auto scaling group is behaving, is your auto scaling group scaling one instance 10 instance, 100 instance, you can use this launch template as reference.
+
+- 📝 Select proper name for your group.
+- 🖼️ Select Image which you want to use it.
+- 🌐 Please check network settings which is more important here.
+- ✅ We have deployed templates successfully.
+
+**Step 3️⃣ — Create Auto Scaling Group (Final)**
+
+- ➕ Now we will go ahead and create auto scaling group. Provide all necessary information and click on next option.
+- ✅ Now click on **create auto scaling group** and it will create.
+- 🔍 Now verify your instance created in two AZ zone.
+
+**Step 4️⃣ — Create Bastion Host**
+
+- 🖥️ Now before going to create application load balancer, we must do one thing that is install the application inside the server so for that go to instances and try to log in instance. There is no public IP because this instance must be secure.
+
+> ❓ Now the question came in mind, how we can log in to this instance. That's our **Bastion** or the **jump host** comes to the picture.
+
+- 🏰 What does a Bastion or jump host does — so it acts as a **mediator** between your private subnet and external persons or the public subnet.
+- 🖥️ So, we will create bastion host here and access the private subnet from there.
+- 🖱️ Go to instance and click on **launch instance**.
